@@ -19,7 +19,7 @@ namespace Points
 
         public static PointSet operator +(PointSet set, Point point)
         {
-            if (set == null || point == null)
+            if (set is null || point is null)
                 throw new ArgumentNullException("set or point cannot be null");
 
             var result = new PointSet(set.set);
@@ -29,9 +29,11 @@ namespace Points
             return result;
         }
 
+        public static PointSet operator +(Point point, PointSet set) => set + point;
+
         public static PointSet operator +(Point left, Point right)
         {
-            if (right == null || left == null)
+            if (right is null || left is null)
                 throw new ArgumentNullException("set or point cannot be null");
 
             var set = new HashSet<Point>();
@@ -42,6 +44,27 @@ namespace Points
             return new PointSet(set);
         }
 
+        public static PointSet operator -(PointSet set, Point point)
+        {
+            if (set is null || point is null)
+                throw new ArgumentNullException("Point or set cannot be null");
+
+            var newSet = new HashSet<Point>(set.set);
+            newSet.Remove(point);
+
+            return new PointSet(newSet);
+        }
+
+        public static bool operator ==(Point left, Point right)
+        {
+            if (right is null || left is null)
+                throw new ArgumentNullException("set or point cannot be null");
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Point left, Point right) => !(left == right);
+
         public override string ToString()
         {
             return $"({X}; {Y})";
@@ -49,7 +72,7 @@ namespace Points
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || obj.GetType() != typeof(Point))
+            if (obj is null || obj.GetType() != typeof(Point))
                 return false;
 
             return this.X == ((Point)obj).X && this.Y == ((Point)obj).Y;
@@ -77,12 +100,42 @@ namespace Points
 
         public static PointSet operator +(PointSet left, PointSet right)
         {
-            if (right == null || left == null)
+            if (right is null || left is null)
                 throw new ArgumentNullException("set or point cannot be null");
 
-            var result = left.set.Union(right.set);
+            var result = new HashSet<Point>(left.set);
+            result.UnionWith(right.set);
 
             return new PointSet((HashSet<Point>)result);
+        }
+
+        public static PointSet operator -(PointSet left, PointSet right)
+        {
+            if (right is null || right is null)
+                throw new ArgumentNullException("set or point cannot be null");
+
+            var result = new HashSet<Point>(left.set);
+            result.ExceptWith(right.set);
+
+            return new PointSet((HashSet<Point>)result);
+        }
+
+        public static bool operator ==(PointSet left, PointSet right)
+        {
+            if (right is null || right is null)
+                throw new ArgumentNullException("set or point cannot be null");
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(PointSet left, PointSet right) => !(left == right);
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null || obj.GetType() != typeof(PointSet))
+                return false;
+
+            return this.set.ToList().All(e => ((PointSet)obj).set.Contains(e));
         }
 
         public override string ToString()
@@ -93,5 +146,7 @@ namespace Points
 
             return str + "}";
         }
+
+        public override int GetHashCode() => this.set.GetHashCode();
     }
 }
